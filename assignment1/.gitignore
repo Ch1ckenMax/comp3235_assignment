@@ -1,3 +1,6 @@
-mywc
-lex.yy.c
-sample
+mywc/mywc
+mywc/lex.yy.c
+mywc/sample
+task2c/task2c
+task2c/lex.yy.c
+task2c/sample
