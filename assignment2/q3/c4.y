@@ -9,21 +9,21 @@
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
-nodeType *id(int i);
+nodeType *id(char* name);
 nodeType *conInt(int value);
 nodeType *conChar(int value);
 nodeType *conStr(char* str);
 void freeNode(nodeType *p);
 int ex(nodeType *p);
 int yylex(void);
+int indexOfVarName(char* varname);
 
 void yyerror(char *s);
-int sym[26];                    /* symbol table */
+char* sym[SYM_SIZE];                    /* symbol table */
 %}
 
 %union {
     int iValue;                 /* integer value */
-    char sIndex;                /* symbol table index */
     char* sPtr;                 /* string pointer */
     nodeType *nPtr;             /* node pointer */
 };
@@ -31,7 +31,7 @@ int sym[26];                    /* symbol table */
 %token <iValue> INTEGER
 %token <iValue> CHARACTER
 %token <sPtr> STRING
-%token <sIndex> VARIABLE
+%token <sPtr> VARIABLE
 %token FOR WHILE IF PRINT READ
 %nonassoc IFX
 %nonassoc ELSE
@@ -61,7 +61,7 @@ stmt:
         | expr ';'                       { $$ = $1; }
         | PRINT expr ';'                 { $$ = opr(PRINT, 1, $2); }
 	| READ VARIABLE ';'		 { $$ = opr(READ, 1, id($2)); }
-        | VARIABLE '=' expr ';'          { $$ = opr('=', 2, id($1), $3); }
+        | VARIABLE '=' expr ';'          { $$ = opr('=', 2, id($1), $3);}
 	| FOR '(' stmt stmt stmt ')' stmt { $$ = opr(FOR, 4, $3, $4,
 $5, $7); }
         | WHILE '(' expr ')' stmt        { $$ = opr(WHILE, 2, $3, $5); }
@@ -141,31 +141,40 @@ nodeType *conStr(char* str) {
     nodeSize = SIZEOF_NODETYPE + sizeof(conNodeType);
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
-    
-    char* newAllocatedMem;
-    if ((newAllocatedMem = malloc(strlen(str))) == NULL)
-        yyerror("out of memory");
-    strcpy(newAllocatedMem, str);
 
     /* copy information */
     p->type = typeConStr;
-    p->conStr.str = newAllocatedMem;
+    p->conStr.str = str;
 
     return p;
 }
 
-nodeType *id(int i) {
+nodeType *id(char* name) {
     nodeType *p;
     size_t nodeSize;
+
+    if(nextVarIndex >= SYM_SIZE){ /* symbol table is full */
+        yyerror("too many variables declared");
+    }
 
     /* allocate node */
     nodeSize = SIZEOF_NODETYPE + sizeof(idNodeType);
     if ((p = malloc(nodeSize)) == NULL)
         yyerror("out of memory");
 
+
     /* copy information */
     p->type = typeId;
-    p->id.i = i;
+    p->id.name = name;
+
+    /* check if the variable is already declared */
+    int index = indexOfVarName(name);
+    if(index < 0){
+        /* put the variable to the symbol table */
+        sym[nextVarIndex] = strdup(name);
+        nextVarIndex++;
+    }
+
 
     return p;
 }
@@ -204,7 +213,32 @@ void freeNode(nodeType *p) {
     if (p->type == typeConStr) { /* free the character array */
         free(p->conStr.str);
     }
+    if (p->type == typeId) { /* free the character array */
+        free(p->id.name);
+    }
     free (p);
+}
+
+
+//Given a variable name, find its index number in the symbol table.
+//If not found, return -1
+int indexOfVarName(char* varname){
+    bool indexFound = false;
+    int index = 0;
+    while(indexFound == false && sym[index] != NULL){
+        if(strcmp(sym[index], varname) == 0){
+            indexFound = true;
+        }
+        else{
+            index++;
+        }
+    }
+    if(indexFound == true){
+        return index;
+    }
+    else{
+        return -1;
+    }
 }
 
 void yyerror(char *s) {
@@ -215,5 +249,9 @@ int main(int argc, char **argv) {
 extern FILE* yyin;
     yyin = fopen(argv[1], "r");
     yyparse();
+    //Free the character arrays in the symbol table
+    for(int i = 0; i < nextVarIndex; i++){
+        free(sym[i]);
+    }
     return 0;
 }

@@ -1,16 +1,12 @@
 %{
 #include <stdlib.h>
+#include <string.h>
 #include "calc3.h"
 #include "y.tab.h"
 void yyerror(char *);
 %}
 
 %%
-
-[a-zA-Z][a-zA-Z0-9]*       { 
-                yylval.sIndex = *yytext - 'a';
-                return VARIABLE;
-            }
 
 0           {
                 yylval.iValue = atoi(yytext);
@@ -32,7 +28,7 @@ void yyerror(char *);
             }
 
 \".*\"      {
-                yylval.sPtr = yytext;
+                yylval.sPtr = strdup(yytext);
                 return STRING;
             }
 
@@ -48,6 +44,11 @@ void yyerror(char *);
 "read"		return READ;
 "&&"		return AND;
 "||"		return OR;
+
+[a-zA-Z][a-zA-Z0-9]*       { 
+                yylval.sPtr = strdup(yytext);
+                return VARIABLE;
+            }
 
 \/\/.*\n	;	/* skip comments */
 

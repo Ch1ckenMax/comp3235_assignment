@@ -1,11 +1,11 @@
 #include <stdio.h>
+#include <string.h>
 #include "calc3.h"
 #include "y.tab.h"
 
-//TO BE DONE: Variables: now put and get only works for integers!
-
 
 static int lbl;
+int indexOfVarName(char* varname);
 
 int ex(nodeType *p) {
     int lblx, lbly, lbl1, lbl2;
@@ -21,9 +21,11 @@ int ex(nodeType *p) {
     case typeConStr:
         printf("\tpush\t%s\n", p->conStr.str);
         break;
-    case typeId:        
-        printf("\tpush\tsb[%d]\n", p->id.i); 
+    case typeId:{
+        int index = indexOfVarName(p->id.name);
+        printf("\tpush\tsb[%d]\n", index); 
         break;
+    }
     case typeOpr:
         switch(p->opr.oper) {
 	case FOR:
@@ -61,12 +63,14 @@ int ex(nodeType *p) {
                 printf("L%03d:\n", lbl1);
             }
             break;
-        case READ:
+        case READ:{
             //TODO: DATA TYPE IN VARIABLES!
             printf("\tgeti\n");
-            printf("\tpop\tsb[%d]\n", p->opr.op[0]->id.i);
-	    break;
-        case PRINT:     
+            int index = indexOfVarName(p->opr.op[0]->id.name);
+            printf("\tpush\tsb[%d]\n", index); 
+            break;
+        }
+        case PRINT:{
             ex(p->opr.op[0]);
             switch(p->opr.op[0]->type){
                 case typeConChar:
@@ -75,12 +79,17 @@ int ex(nodeType *p) {
                     printf("\tputi\n"); break;
                 case typeConStr:
                     printf("\tputs\n"); break;
+                case typeId:
+                    printf("\tputi\n"); break;
             }
             break;
-        case '=':       
+        }
+        case '=':{
             ex(p->opr.op[1]);
-            printf("\tpop\tsb[%d]\n", p->opr.op[0]->id.i);
+            int index = indexOfVarName(p->opr.op[0]->id.name);
+            printf("\tpop\tsb[%d]\n", index); 
             break;
+        }
         case UMINUS:    
             ex(p->opr.op[0]);
             printf("\tneg\n");

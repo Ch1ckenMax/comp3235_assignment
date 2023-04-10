@@ -1,3 +1,6 @@
+#include <stdbool.h>
+#define SYM_SIZE 26
+
 typedef enum { typeConInt, typeId, typeOpr, typeConChar, typeConStr } nodeEnum;
 
 /* constants */
@@ -11,7 +14,7 @@ typedef struct {
 
 /* identifiers */
 typedef struct {
-    int i;                      /* subscript to sym array */
+    char* name;                      /* subscript to sym array */
 } idNodeType;
 
 /* operators */
@@ -34,4 +37,6 @@ typedef struct nodeTypeTag {
     };
 } nodeType;
 
-extern int sym[26];
+extern char* sym[SYM_SIZE];
+static int nextVarIndex = 0; //Index of the next element to be filled in the symbol table
+
