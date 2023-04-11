@@ -63,27 +63,48 @@ int ex(nodeType *p) {
                 printf("L%03d:\n", lbl1);
             }
             break;
-        case READ:{
-            //TODO: DATA TYPE IN VARIABLES!
+        case GETI:{
             printf("\tgeti\n");
             int index = indexOfVarName(p->opr.op[0]->id.name);
-            printf("\tpush\tsb[%d]\n", index); 
+            printf("\tpop\tsb[%d]\n", index); 
             break;
         }
-        case PRINT:{
+        case GETC:{
+            printf("\tgetc\n");
+            int index = indexOfVarName(p->opr.op[0]->id.name);
+            printf("\tpop\tsb[%d]\n", index); 
+            break;
+        }
+        case GETS:{
+            printf("\tgets\n");
+            int index = indexOfVarName(p->opr.op[0]->id.name);
+            printf("\tpop\tsb[%d]\n", index); 
+            break;
+        }
+        case PUTI:
             ex(p->opr.op[0]);
-            switch(p->opr.op[0]->type){
-                case typeConChar:
-                    printf("\tputc\n"); break;
-                case typeConInt:
-                    printf("\tputi\n"); break;
-                case typeConStr:
-                    printf("\tputs\n"); break;
-                case typeId:
-                    printf("\tputi\n"); break;
-            }
+            printf("\tputi\n");
             break;
-        }
+        case PUTC:
+            ex(p->opr.op[0]);
+            printf("\tputc\n");
+            break;
+        case PUTS:
+            ex(p->opr.op[0]);
+            printf("\tputs\n");
+            break;
+        case PUTI_:
+            ex(p->opr.op[0]);
+            printf("\tputi_\n");
+            break;
+        case PUTC_:
+            ex(p->opr.op[0]);
+            printf("\tputc_\n");
+            break;
+        case PUTS_:
+            ex(p->opr.op[0]);
+            printf("\tputs_\n");
+            break;
         case '=':{
             ex(p->opr.op[1]);
             int index = indexOfVarName(p->opr.op[0]->id.name);

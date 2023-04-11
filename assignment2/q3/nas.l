@@ -86,4 +86,4 @@ puts_		return PUTS_;
 putc_		return PUTC_;
 [; \t\n]+	;
 "//".*\n	;
-.		printf("%c", *yytext);
+.		yyerror("Unknown character");

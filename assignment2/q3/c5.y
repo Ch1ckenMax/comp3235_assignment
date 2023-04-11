@@ -31,10 +31,11 @@ char* sym[SYM_SIZE];                    /* symbol table */
 %token <iValue> INTEGER
 %token <iValue> CHARACTER
 %token <sPtr> STRING
-%token <sPtr> VARIABLE
-%token FOR WHILE IF PRINT READ
+%token FOR WHILE IF
+%token GETI GETC GETS PUTI PUTC PUTS PUTI_ PUTC_ PUTS_
 %nonassoc IFX
 %nonassoc ELSE
+%token <sPtr> VARIABLE
 
 %left AND OR
 
@@ -59,8 +60,15 @@ function:
 stmt:
           ';'                            { $$ = opr(';', 2, NULL, NULL); }
         | expr ';'                       { $$ = $1; }
-        | PRINT expr ';'                 { $$ = opr(PRINT, 1, $2); }
-	| READ VARIABLE ';'		 { $$ = opr(READ, 1, id($2)); }
+        | PUTI '(' expr ')' ';'         { $$ = opr(PUTI, 1, $3); }
+        | PUTC '(' expr ')' ';'         { $$ = opr(PUTC, 1, $3); }
+        | PUTS '(' expr ')' ';'         { $$ = opr(PUTS, 1, $3); }
+        | PUTI_ '(' expr ')' ';'         { $$ = opr(PUTI_, 1, $3); }
+        | PUTC_ '(' expr ')' ';'         { $$ = opr(PUTC_, 1, $3); }
+        | PUTS_ '(' expr ')' ';'         { $$ = opr(PUTS_, 1, $3); }
+	    | GETI '(' VARIABLE ')' ';'		 { $$ = opr(GETI, 1, id($3)); }
+        | GETC '(' VARIABLE ')' ';'		 { $$ = opr(GETC, 1, id($3)); }
+        | GETS '(' VARIABLE ')' ';'		 { $$ = opr(GETS, 1, id($3)); }
         | VARIABLE '=' expr ';'          { $$ = opr('=', 2, id($1), $3);}
 	| FOR '(' stmt stmt stmt ')' stmt { $$ = opr(FOR, 4, $3, $4,
 $5, $7); }
@@ -248,6 +256,9 @@ void yyerror(char *s) {
 int main(int argc, char **argv) {
 extern FILE* yyin;
     yyin = fopen(argv[1], "r");
+
+    printf("\tpush\t%d\n", SYM_SIZE); printf("\tpop\tsp\n"); //Reserve space in the stack for variables
+
     yyparse();
     //Free the character arrays in the symbol table
     for(int i = 0; i < nextVarIndex; i++){

@@ -40,10 +40,17 @@ void yyerror(char *);
 "while"         return WHILE;
 "if"            return IF;
 "else"          return ELSE;
-"print"         return PRINT;
-"read"		return READ;
 "&&"		return AND;
 "||"		return OR;
+"geti"      return GETI;
+"getc"      return GETC;
+"gets"      return GETS;
+"puti_"     return PUTI_;
+"putc_"     return PUTC_;
+"puts_"    return PUTS_;
+"puti"      return PUTI;
+"putc"      return PUTC;
+"puts"      return PUTS;
 
 [a-zA-Z][a-zA-Z0-9]*       { 
                 yylval.sPtr = strdup(yytext);
