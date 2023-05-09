@@ -1,0 +1,14 @@
+array x[5], y[5];
+k = 3;
+b = 5;
+z = "This is a fucking array!";
+
+for(i = 0; i < 5; i = i + 1;){
+    x[i] = i + 1;
+    y[i] = i - 1;
+}
+
+for(i = 0; i < 5; i = i + 1;){
+    puti(x[i] * k);
+    puti(y[i] * b);
+}
