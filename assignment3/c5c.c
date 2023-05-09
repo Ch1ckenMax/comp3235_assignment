@@ -131,17 +131,15 @@ int ex(nodeType *p) {
                 int stackIndex = indexOnStack(symIndex, 1);
                 printf("\tpop\tsb[%d]\n", stackIndex); 
             }else{
-                storeIndexStackPos(p); //After executing this function, ac[in] is the position of the element of the array
-
                 //Evaluate the rvalue of the statement
                 ex(p->opr.op[2]);
-
+                storeIndexStackPos(p); //After executing this function, the register "in" stores the index
                 printf("\tpop\tsb[in]\n");//Pop the top of the stack(which stores the rvalue of the statement) to the designated position of the array
 
             }
             break;}
         case '[':{ //Case for accessing array
-            storeIndexStackPos(p); //After executing this function, ac[in] is the position of the element of the array
+            storeIndexStackPos(p); //After executing this function, the register "in" stores the index
 
             //Then, push the element onto the stack
             printf("\tpush\tsb[in]\n"); 

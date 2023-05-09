@@ -1,14 +1,16 @@
-array x[5], y[5];
-k = 3;
-b = 5;
-z = "This is a fucking array!";
+array y[1], x[6];
+welcomeMessage = "Please enter a number: ";
+puts(welcomeMessage);
+geti(y);
 
-for(i = 0; i < 5; i = i + 1;){
-    x[i] = i + 1;
-    y[i] = i - 1;
+for(i = 0; i < 6; i = i + 1;){
+    x[i] = y[0] * i;
 }
 
-for(i = 0; i < 5; i = i + 1;){
-    puti(x[i] * k);
-    puti(y[i] * b);
+puts("The result is:");
+
+for(i = 0; i < 6; i = i + 1;){
+    puti_(x[i]);
+    putc_(' ');
 }
+puts("");
