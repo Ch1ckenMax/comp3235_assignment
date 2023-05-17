@@ -34,8 +34,8 @@
 /* Undocumented macros, especially those whose name start with YY_,
    are private implementation details.  Do not rely on them.  */
 
-#ifndef YY_YY_NAS_TAB_H_INCLUDED
-# define YY_YY_NAS_TAB_H_INCLUDED
+#ifndef YY_YY_NAS2_TAB_H_INCLUDED
+# define YY_YY_NAS2_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -83,7 +83,9 @@ extern int yydebug;
     PUTC = 289,
     PUTI_ = 290,
     PUTS_ = 291,
-    PUTC_ = 292
+    PUTC_ = 292,
+    VAR = 293,
+    DBI = 294
   };
 #endif
 
@@ -91,12 +93,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 52 "nas.y"
+#line 53 "nas2.y"
 
   int i;
   char s[500];
 
-#line 100 "nas.tab.h"
+#line 102 "nas2.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -109,4 +111,4 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-#endif /* !YY_YY_NAS_TAB_H_INCLUDED  */
+#endif /* !YY_YY_NAS2_TAB_H_INCLUDED  */

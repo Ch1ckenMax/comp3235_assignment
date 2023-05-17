@@ -18,7 +18,7 @@ void yyerror(char *);
                 return INTEGER;
             }
 
-[-\[\],()<>=+*/;{}.%] {
+[-\[\]@,()<>=+*/;{}.%] {
                 return *yytext;
              }
 
@@ -52,7 +52,8 @@ void yyerror(char *);
 "putc"      return PUTC;
 "puts"      return PUTS;
 "array"     return ARRAY;
-
+"func"      return FUNC;
+"return"    return RET;
 
 [a-zA-Z][a-zA-Z0-9]*       { 
                 yylval.sPtr = strdup(yytext);

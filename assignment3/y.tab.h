@@ -67,14 +67,18 @@ extern int yydebug;
     PUTC_ = 273,
     PUTS_ = 274,
     ARRAY = 275,
-    VARIABLE = 276,
-    AND = 277,
-    OR = 278,
-    GE = 279,
-    LE = 280,
-    EQ = 281,
-    NE = 282,
-    UMINUS = 283
+    FUNC = 276,
+    RET = 277,
+    ARG_LIST = 278,
+    PARAM_LIST = 279,
+    VARIABLE = 280,
+    AND = 281,
+    OR = 282,
+    GE = 283,
+    LE = 284,
+    EQ = 285,
+    NE = 286,
+    UMINUS = 287
   };
 #endif
 /* Tokens.  */
@@ -96,26 +100,30 @@ extern int yydebug;
 #define PUTC_ 273
 #define PUTS_ 274
 #define ARRAY 275
-#define VARIABLE 276
-#define AND 277
-#define OR 278
-#define GE 279
-#define LE 280
-#define EQ 281
-#define NE 282
-#define UMINUS 283
+#define FUNC 276
+#define RET 277
+#define ARG_LIST 278
+#define PARAM_LIST 279
+#define VARIABLE 280
+#define AND 281
+#define OR 282
+#define GE 283
+#define LE 284
+#define EQ 285
+#define NE 286
+#define UMINUS 287
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 27 "c5.y"
+#line 29 "c6.y"
 
     int iValue;                 /* integer value */
     char* sPtr;                 /* string pointer */
     nodeType *nPtr;             /* node pointer */
 
-#line 119 "y.tab.h"
+#line 127 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

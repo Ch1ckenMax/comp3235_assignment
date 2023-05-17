@@ -1,23 +1,27 @@
-c5c: lex.yy.c y.tab.c c5c.c
-	gcc -g -o c5c lex.yy.c y.tab.c c5c.c
+c6c: lex.yy.c y.tab.c c6c.c
+	gcc -g -o c6c lex.yy.c y.tab.c c6c.c
 
-lex.yy.c: c5.l
-	flex c5.l
+lex.yy.c: c6.l
+	flex c6.l
 
-y.tab.c: c5.y
-	bison -y -d c5.y
+y.tab.c: c6.y
+	bison -y -d c6.y
 
-nas: nas.c nas.tab.c
-	gcc -o nas nas.c nas.tab.c
-
-nas.c: nas.l
-	flex -o nas.c nas.l
-
-nas.tab.c: nas.y
+nas:
+	flex nas.l
 	bison -d nas.y
+	gcc -o nas lex.yy.c nas.tab.c
 
-cleanc5:
-	$(RM) lex.yy.c y.tab.c y.tab.h c5c
+nas2:
+	flex nas2.l
+	bison -d nas2.y
+	gcc -o nas2 lex.yy.c nas2.tab.c
+
+cleanc6:
+	$(RM) lex.yy.c y.tab.c y.tab.h c6c
 
 cleannas:
 	$(RM) nas.c nas.tab.c nas.tab.h nas
+
+cleannas2:
+	$(RM) nas2.c nas2.tab.c nas2.tab.h nas2

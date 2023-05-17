@@ -4,6 +4,7 @@
 #define STACKPOS_NOT_YET_INIT -9999
 
 typedef enum { typeConInt, typeId, typeOpr, typeConChar, typeConStr } nodeEnum;
+typedef enum { global, local } scopeEnum;
 
 /* constants */
 typedef struct {
@@ -40,8 +41,15 @@ typedef struct nodeTypeTag {
 } nodeType;
 
 extern char* sym[SYM_SIZE];
+extern char* symLocal[SYM_SIZE];
 static int nextSymIndex = 0; //Index of the next element to be filled in the symbol table
+static int nextSymIndexLocal = 0;
 
 extern int symStackPos[STACK_RESERVE_SIZE]; //position of the variable in the stack - sb
+extern int symStackPosLocal[STACK_RESERVE_SIZE]; // relative to fp
 static int nextStackPos = 0;
+static int nextStackPosLocal = 0;
 
+static int numOfParams = 0;
+
+static scopeEnum currentScope = global;
