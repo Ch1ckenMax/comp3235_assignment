@@ -18,6 +18,7 @@ typedef struct {
 /* identifiers */
 typedef struct {
     char* name;                      /* subscript to sym array */
+    bool lvalue;
 } idNodeType;
 
 /* operators */

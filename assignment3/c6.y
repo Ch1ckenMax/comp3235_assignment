@@ -9,7 +9,7 @@
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
-nodeType *id(char* name);
+nodeType *id(char* name, bool lvalue);
 nodeType *conInt(int value);
 nodeType *conChar(int value);
 nodeType *conStr(char* str);
@@ -71,13 +71,13 @@ stmt:
         | PUTI_ '(' expr ')' ';'         { $$ = opr(PUTI_, 1, $3); }
         | PUTC_ '(' expr ')' ';'         { $$ = opr(PUTC_, 1, $3); }
         | PUTS_ '(' expr ')' ';'         { $$ = opr(PUTS_, 1, $3); }
-	    | GETI '(' VARIABLE ')' ';'		 { $$ = opr(GETI, 1, id($3)); }
-        | GETC '(' VARIABLE ')' ';'		 { $$ = opr(GETC, 1, id($3)); }
-        | GETS '(' VARIABLE ')' ';'		 { $$ = opr(GETS, 1, id($3)); }
-        | VARIABLE '=' expr ';'          { $$ = opr('=', 2, id($1), $3);}
-        | VARIABLE '[' expr ']' '=' expr ';' { $$ = opr('=', 3, id($1), $3, $6);}
+	    | GETI '(' VARIABLE ')' ';'		 { $$ = opr(GETI, 1, id($3, false)); }
+        | GETC '(' VARIABLE ')' ';'		 { $$ = opr(GETC, 1, id($3, false)); }
+        | GETS '(' VARIABLE ')' ';'		 { $$ = opr(GETS, 1, id($3, false)); }
+        | VARIABLE '=' expr ';'          { $$ = opr('=', 2, id($1, true), $3);}
+        | VARIABLE '[' expr ']' '=' expr ';' { $$ = opr('=', 3, id($1, true), $3, $6);}
         | ARRAY arr_decl_list ';' { $$ = opr(ARRAY, 1, $2); }
-        | FUNC VARIABLE '(' param_list ')' stmt { $$ = opr(FUNC, 3, id($2), $4, $6); }
+        | FUNC VARIABLE '(' param_list ')' stmt { $$ = opr(FUNC, 3, id($2, true), $4, $6); }
         | RET expr ';'                { $$ = opr(RET, 1, $2);}
 	    | FOR '(' stmt stmt stmt ')' stmt { $$ = opr(FOR, 4, $3, $4,
 $5, $7); }
@@ -88,14 +88,14 @@ $5, $7); }
         ;
 
 arr_decl_list:
-          VARIABLE '[' INTEGER ']'                  { $$ = opr(ARRAY, 3, NULL, id($1), conInt($3)); }
-        | arr_decl_list ',' VARIABLE '[' INTEGER ']'    { $$ = opr(ARRAY, 3, $1, id($3), conInt($5)); }
+          VARIABLE '[' INTEGER ']'                  { $$ = opr(ARRAY, 3, NULL, id($1, true), conInt($3)); }
+        | arr_decl_list ',' VARIABLE '[' INTEGER ']'    { $$ = opr(ARRAY, 3, $1, id($3, true), conInt($5)); }
 
 param_list:
-          VARIABLE                  { $$ = id($1); }
-        | VARIABLE '[' expr ']'     { $$ = opr('[', 2, id($1), $3); }
-        | param_list ',' VARIABLE   { $$ = opr(PARAM_LIST, 2, $1, id($3)); }
-        | param_list ',' VARIABLE '[' expr ']' { $$ = opr(PARAM_LIST, 2, $1, opr('[', 2, id($3), $5)); }
+          VARIABLE                  { $$ = id($1, true); }
+        | VARIABLE '[' expr ']'     { $$ = opr('[', 2, id($1, true), $3); }
+        | param_list ',' VARIABLE   { $$ = opr(PARAM_LIST, 2, $1, id($3, true)); }
+        | param_list ',' VARIABLE '[' expr ']' { $$ = opr(PARAM_LIST, 2, $1, opr('[', 2, id($3, true), $5)); }
 
 arg_list:
           expr                  { $$ = $1; }
@@ -110,12 +110,12 @@ expr:
           INTEGER               { $$ = conInt($1); }
         | CHARACTER             { $$ = conChar($1); }
         | STRING                { $$ = conStr($1); }
-        | VARIABLE              { $$ = id($1); }
-        | VARIABLE '[' expr ']' { $$ = opr('[', 2, id($1), $3); }
-        | VARIABLE '(' arg_list ')' { $$ = opr('(', 2, id($1), $3); }
-        | '@' VARIABLE          { $$ = id($2); }
-        | '@' VARIABLE '[' expr ']' { $$ = opr(']', 2, id($2), $4); }
-        | '@' VARIABLE '(' arg_list ')' { $$ = opr('(', 2, id($2), $4); }
+        | VARIABLE              { $$ = id($1, false); }
+        | VARIABLE '[' expr ']' { $$ = opr('[', 2, id($1, false), $3); }
+        | VARIABLE '(' arg_list ')' { $$ = opr('(', 2, id($1, false), $3); }
+        | '@' VARIABLE          { $$ = id($2, false); }
+        | '@' VARIABLE '[' expr ']' { $$ = opr(']', 2, id($2, false), $4); }
+        | '@' VARIABLE '(' arg_list ')' { $$ = opr('(', 2, id($2, false), $4); }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
         | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
         | expr '-' expr         { $$ = opr('-', 2, $1, $3); }
@@ -186,7 +186,7 @@ nodeType *conStr(char* str) {
 }
 
 //This function does stuff on the symbol table
-nodeType *id(char* name) {
+nodeType *id(char* name, bool lvalue) {
     nodeType *p;
     size_t nodeSize;
 
@@ -199,6 +199,7 @@ nodeType *id(char* name) {
     /* copy information */
     p->type = typeId;
     p->id.name = name;
+    p->id.lvalue = lvalue;
 
     return p;
 }

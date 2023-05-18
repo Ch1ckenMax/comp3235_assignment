@@ -34,12 +34,15 @@ int ex(nodeType *p) {
             symIndex = symTableAddEntry(symIndex, p->id.name);
         }
         int stackIndex = indexOnStack(symIndex, 1, currentScope);
-        if(currentScope == global){
-            printf("\tpush\tsb[%d]\n", stackIndex); 
+        if(!p->id.lvalue){
+            if(currentScope == global){
+                printf("\tpush\tsb[%d]\n", stackIndex); 
+            }
+            else{
+                printf("\tpush\tfp[%d]\n", stackIndex); 
+            }
         }
-        else{
-            printf("\tpush\tfp[%d]\n", stackIndex); 
-        }
+        
         
         break;
     }

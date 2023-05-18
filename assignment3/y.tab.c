@@ -78,7 +78,7 @@
 
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
-nodeType *id(char* name);
+nodeType *id(char* name, bool lvalue);
 nodeType *conInt(int value);
 nodeType *conChar(int value);
 nodeType *conStr(char* str);
@@ -1617,31 +1617,31 @@ yyreduce:
 
   case 13:
 #line 74 "c6.y"
-                                                 { (yyval.nPtr) = opr(GETI, 1, id((yyvsp[-2].sPtr))); }
+                                                 { (yyval.nPtr) = opr(GETI, 1, id((yyvsp[-2].sPtr), false)); }
 #line 1622 "y.tab.c"
     break;
 
   case 14:
 #line 75 "c6.y"
-                                                 { (yyval.nPtr) = opr(GETC, 1, id((yyvsp[-2].sPtr))); }
+                                                 { (yyval.nPtr) = opr(GETC, 1, id((yyvsp[-2].sPtr), false)); }
 #line 1628 "y.tab.c"
     break;
 
   case 15:
 #line 76 "c6.y"
-                                                 { (yyval.nPtr) = opr(GETS, 1, id((yyvsp[-2].sPtr))); }
+                                                 { (yyval.nPtr) = opr(GETS, 1, id((yyvsp[-2].sPtr), false)); }
 #line 1634 "y.tab.c"
     break;
 
   case 16:
 #line 77 "c6.y"
-                                         { (yyval.nPtr) = opr('=', 2, id((yyvsp[-3].sPtr)), (yyvsp[-1].nPtr));}
+                                         { (yyval.nPtr) = opr('=', 2, id((yyvsp[-3].sPtr), true), (yyvsp[-1].nPtr));}
 #line 1640 "y.tab.c"
     break;
 
   case 17:
 #line 78 "c6.y"
-                                             { (yyval.nPtr) = opr('=', 3, id((yyvsp[-6].sPtr)), (yyvsp[-4].nPtr), (yyvsp[-1].nPtr));}
+                                             { (yyval.nPtr) = opr('=', 3, id((yyvsp[-6].sPtr), true), (yyvsp[-4].nPtr), (yyvsp[-1].nPtr));}
 #line 1646 "y.tab.c"
     break;
 
@@ -1653,7 +1653,7 @@ yyreduce:
 
   case 19:
 #line 80 "c6.y"
-                                                { (yyval.nPtr) = opr(FUNC, 3, id((yyvsp[-4].sPtr)), (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
+                                                { (yyval.nPtr) = opr(FUNC, 3, id((yyvsp[-4].sPtr), true), (yyvsp[-2].nPtr), (yyvsp[0].nPtr)); }
 #line 1658 "y.tab.c"
     break;
 
@@ -1696,37 +1696,37 @@ yyreduce:
 
   case 26:
 #line 91 "c6.y"
-                                                    { (yyval.nPtr) = opr(ARRAY, 3, NULL, id((yyvsp[-3].sPtr)), conInt((yyvsp[-1].iValue))); }
+                                                    { (yyval.nPtr) = opr(ARRAY, 3, NULL, id((yyvsp[-3].sPtr), true), conInt((yyvsp[-1].iValue))); }
 #line 1701 "y.tab.c"
     break;
 
   case 27:
 #line 92 "c6.y"
-                                                        { (yyval.nPtr) = opr(ARRAY, 3, (yyvsp[-5].nPtr), id((yyvsp[-3].sPtr)), conInt((yyvsp[-1].iValue))); }
+                                                        { (yyval.nPtr) = opr(ARRAY, 3, (yyvsp[-5].nPtr), id((yyvsp[-3].sPtr), true), conInt((yyvsp[-1].iValue))); }
 #line 1707 "y.tab.c"
     break;
 
   case 28:
 #line 95 "c6.y"
-                                    { (yyval.nPtr) = id((yyvsp[0].sPtr)); }
+                                    { (yyval.nPtr) = id((yyvsp[0].sPtr), true); }
 #line 1713 "y.tab.c"
     break;
 
   case 29:
 #line 96 "c6.y"
-                                    { (yyval.nPtr) = opr('[', 2, id((yyvsp[-3].sPtr)), (yyvsp[-1].nPtr)); }
+                                    { (yyval.nPtr) = opr('[', 2, id((yyvsp[-3].sPtr), true), (yyvsp[-1].nPtr)); }
 #line 1719 "y.tab.c"
     break;
 
   case 30:
 #line 97 "c6.y"
-                                    { (yyval.nPtr) = opr(PARAM_LIST, 2, (yyvsp[-2].nPtr), id((yyvsp[0].sPtr))); }
+                                    { (yyval.nPtr) = opr(PARAM_LIST, 2, (yyvsp[-2].nPtr), id((yyvsp[0].sPtr), true)); }
 #line 1725 "y.tab.c"
     break;
 
   case 31:
 #line 98 "c6.y"
-                                               { (yyval.nPtr) = opr(PARAM_LIST, 2, (yyvsp[-5].nPtr), opr('[', 2, id((yyvsp[-3].sPtr)), (yyvsp[-1].nPtr))); }
+                                               { (yyval.nPtr) = opr(PARAM_LIST, 2, (yyvsp[-5].nPtr), opr('[', 2, id((yyvsp[-3].sPtr), true), (yyvsp[-1].nPtr))); }
 #line 1731 "y.tab.c"
     break;
 
@@ -1774,37 +1774,37 @@ yyreduce:
 
   case 39:
 #line 113 "c6.y"
-                                { (yyval.nPtr) = id((yyvsp[0].sPtr)); }
+                                { (yyval.nPtr) = id((yyvsp[0].sPtr), false); }
 #line 1779 "y.tab.c"
     break;
 
   case 40:
 #line 114 "c6.y"
-                                { (yyval.nPtr) = opr('[', 2, id((yyvsp[-3].sPtr)), (yyvsp[-1].nPtr)); }
+                                { (yyval.nPtr) = opr('[', 2, id((yyvsp[-3].sPtr), false), (yyvsp[-1].nPtr)); }
 #line 1785 "y.tab.c"
     break;
 
   case 41:
 #line 115 "c6.y"
-                                    { (yyval.nPtr) = opr('(', 2, id((yyvsp[-3].sPtr)), (yyvsp[-1].nPtr)); }
+                                    { (yyval.nPtr) = opr('(', 2, id((yyvsp[-3].sPtr), false), (yyvsp[-1].nPtr)); }
 #line 1791 "y.tab.c"
     break;
 
   case 42:
 #line 116 "c6.y"
-                                { (yyval.nPtr) = id((yyvsp[0].sPtr)); }
+                                { (yyval.nPtr) = id((yyvsp[0].sPtr), false); }
 #line 1797 "y.tab.c"
     break;
 
   case 43:
 #line 117 "c6.y"
-                                    { (yyval.nPtr) = opr(']', 2, id((yyvsp[-3].sPtr)), (yyvsp[-1].nPtr)); }
+                                    { (yyval.nPtr) = opr(']', 2, id((yyvsp[-3].sPtr), false), (yyvsp[-1].nPtr)); }
 #line 1803 "y.tab.c"
     break;
 
   case 44:
 #line 118 "c6.y"
-                                        { (yyval.nPtr) = opr('(', 2, id((yyvsp[-3].sPtr)), (yyvsp[-1].nPtr)); }
+                                        { (yyval.nPtr) = opr('(', 2, id((yyvsp[-3].sPtr), false), (yyvsp[-1].nPtr)); }
 #line 1809 "y.tab.c"
     break;
 
@@ -2185,7 +2185,7 @@ nodeType *conStr(char* str) {
 }
 
 //This function does stuff on the symbol table
-nodeType *id(char* name) {
+nodeType *id(char* name, bool lvalue) {
     nodeType *p;
     size_t nodeSize;
 
@@ -2198,6 +2198,7 @@ nodeType *id(char* name) {
     /* copy information */
     p->type = typeId;
     p->id.name = name;
+    p->id.lvalue = lvalue;
 
     return p;
 }
