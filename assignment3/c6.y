@@ -91,18 +91,18 @@ $5, $7); }
 
 arr_decl_list:
           VARIABLE '[' INTEGER ']'                  { $$ = opr(ARRAY, 3, NULL, id($1, true), conInt($3)); }
+        | VARIABLE '[' INTEGER ']' '=' expr         { $$ = opr(ARRAY, 4, NULL, id($1, true), conInt($3), $6);} 
         | arr_decl_list ',' VARIABLE '[' INTEGER ']'    { $$ = opr(ARRAY, 3, $1, id($3, true), conInt($5)); }
+        | arr_decl_list ',' VARIABLE '[' INTEGER ']' '=' expr { $$ = opr(ARRAY, 4, $1, id($3, true), conInt($5), $8); }
 
 param_list:
           VARIABLE                  { $$ = id($1, true); }
-        | VARIABLE '[' expr ']'     { $$ = opr('[', 2, id($1, true), $3); }
-        | /* NULL */                { $$ = opr(' ', 0); }
+        | /* NULL */                { $$ = NULL; }
         | param_list ',' VARIABLE   { $$ = opr(PARAM_LIST, 2, $1, id($3, true)); }
-        | param_list ',' VARIABLE '[' expr ']' { $$ = opr(PARAM_LIST, 2, $1, opr('[', 2, id($3, true), $5)); }
 
 arg_list:
           expr                  { $$ = $1; }
-        | /* NULL */            { $$ = opr(' ', 0); }
+        | /* NULL */            { $$ = NULL; }
         | arg_list ',' expr     { $$ = opr(ARG_LIST, 2, $1, $3); }
 
 stmt_list:

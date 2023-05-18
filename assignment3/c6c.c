@@ -33,6 +33,7 @@ int ex(nodeType *p) {
         int symIndex = indexOfVarName(p->id.name, currentScope); //Finds the index of the identifier name of the variable in the current scope
         if(symIndex < 0){                                        //The above function returns -1 if the variable is not declared in the symbol table.
             symIndex = symTableAddEntry(symIndex, p->id.name);   //If variable not yet declared, add the name to the symbol table.
+            numOfParams++;
         }
         int stackIndex = indexOnStack(symIndex, 1, currentScope);//Allocate space in the stack for the variable/find the position of the variable in the stack (relative to the current frame pointer)
         if(!p->id.lvalue){
@@ -43,6 +44,7 @@ int ex(nodeType *p) {
                 printf("\tpush\tfp[%d]\n", stackIndex); 
             }
         }
+        
         
         
         break;
@@ -92,10 +94,10 @@ int ex(nodeType *p) {
                 }
                 int stackIndex = indexOnStack(symIndex, 1, currentScope);
                 if(currentScope == global){
-                    printf("\tpush\tsb[%d]\n", stackIndex); 
+                    printf("\tpop\tsb[%d]\n", stackIndex); 
                 }
                 else{
-                    printf("\tpush\tfp[%d]\n", stackIndex); 
+                    printf("\tpop\tfp[%d]\n", stackIndex); 
                 }
                 break;
             }
@@ -107,10 +109,10 @@ int ex(nodeType *p) {
                 }
                 int stackIndex = indexOnStack(symIndex, 1, currentScope);
                 if(currentScope == global){
-                    printf("\tpush\tsb[%d]\n", stackIndex); 
+                    printf("\tpop\tsb[%d]\n", stackIndex); 
                 }
                 else{
-                    printf("\tpush\tfp[%d]\n", stackIndex); 
+                    printf("\tpop\tfp[%d]\n", stackIndex); 
                 } 
                 break;
             }
@@ -119,13 +121,14 @@ int ex(nodeType *p) {
                 int symIndex = indexOfVarName(p->opr.op[0]->id.name, currentScope);
                 if(symIndex < 0){
                     symIndex = symTableAddEntry(symIndex, p->opr.op[0]->id.name);
+                    
                 }
                 int stackIndex = indexOnStack(symIndex, 1, currentScope);
                 if(currentScope == global){
-                    printf("\tpush\tsb[%d]\n", stackIndex); 
+                    printf("\tpop\tsb[%d]\n", stackIndex); 
                 }
                 else{
-                    printf("\tpush\tfp[%d]\n", stackIndex); 
+                    printf("\tpop\tfp[%d]\n", stackIndex); 
                 } 
                 break;
             }
@@ -157,6 +160,15 @@ int ex(nodeType *p) {
                 if (p->opr.nops == 1){
                     ex(p->opr.op[0]);
                 }
+                else if (p->opr.nops == 3){
+                    ex(p->opr.op[0]);
+                    int arraySize = p->opr.op[2]->con.value;
+                    int symIndex = indexOfVarName(p->opr.op[1]->id.name, currentScope);
+                    if(symIndex < 0){
+                        symIndex = symTableAddEntry(symIndex, p->opr.op[1]->id.name);
+                    }
+                    int stackIndex = indexOnStack(symIndex, arraySize, currentScope); //Allocate space for the array in the stack
+                }
                 else{
                     ex(p->opr.op[0]);
                     int arraySize = p->opr.op[2]->con.value;
@@ -165,6 +177,18 @@ int ex(nodeType *p) {
                         symIndex = symTableAddEntry(symIndex, p->opr.op[1]->id.name);
                     }
                     int stackIndex = indexOnStack(symIndex, arraySize, currentScope); //Allocate space for the array in the stack
+
+                    ex(p->opr.op[3]);
+                    printf("\tpop\tac\n"); //Save the value to ac
+                    for(int i = stackIndex; i < stackIndex + arraySize; i++){
+                        printf("\tpush\tac\n");
+                        if(currentScope == global){
+                            printf("\tpop\tsb[%d]\n", i);
+                        }
+                        else{
+                            printf("\tpop\tfp[%d]\n", i);
+                        }
+                    }
                 }
 
                 break;
@@ -256,8 +280,8 @@ int ex(nodeType *p) {
 
                 //JUMP POSITION. VAR <number of parameters>, <local variables created>
                 printf("\tjmp\tL%03d\n", lblFuncSkip);
-                
-                printf("L%03d:\n\tvar\t%d,%d\n", lblFunc, numOfParams, nextSymIndexLocal - numOfParams);
+                //printf("wot?%d\n", nextStackPosLocal);
+                printf("L%03d:\n\tvar\t%d,%d\n", lblFunc, numOfParams, nextStackPosLocal - numOfParams);
                 printf("%s", buf);
 
                 currentScope = global;
@@ -280,7 +304,6 @@ int ex(nodeType *p) {
             case PARAM_LIST:{
                 ex(p->opr.op[0]);
                 ex(p->opr.op[1]);
-                numOfParams++;
                 break;
             }
             case ARG_LIST:{
@@ -331,10 +354,6 @@ int ex(nodeType *p) {
                 }
                 
                 break;
-            case ' ':{
-                //Placeholder for empty rule
-                break;
-            }
             }
             case UMINUS:    
                 ex(p->opr.op[0]);

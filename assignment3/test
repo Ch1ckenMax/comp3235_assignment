@@ -1,21 +1,12 @@
-k = 5;
-z = 7;
-array j[3];
-j[0] = 10;
-j[1] = 20;
-j[2] = 3;
-a = "yes";
-func fact(x){
-    if(x > @z)
-        return @j[0];
-    else{
-        return @j[1];
-    }
+func fact(n) {
+    if (n==0) return 1;
+    else return n*@fact(n-1);
 }
-puti(fact(8));
-func shit(){
-    z = 5;
-    return @shit();
+puts("This is recursive factorial!");
+ok = 0;
+while (ok == 0) {
+    puts_("Please input a number between 0 and 20: ");
+    geti(input);
+    if (input >= 0 && input <= 20) ok = 1;
 }
-puti(j[2] + shit());
-puts("Yay such my ball mipah");
+puti(fact(input));
