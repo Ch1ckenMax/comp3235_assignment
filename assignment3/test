@@ -1,7 +1,21 @@
-func ass(x,y){
-    return x + y;
+k = 5;
+z = 7;
+array j[3];
+j[0] = 10;
+j[1] = 20;
+j[2] = 3;
+a = "yes";
+func fact(x){
+    if(x > @z)
+        return @j[0];
+    else{
+        return @j[1];
+    }
 }
-func shit(z,k){
-    return z - k;
+puti(fact(8));
+func shit(){
+    z = 5;
+    return @shit();
 }
-puti(ass(2,3) - shit(2,1));
+puti(j[2] + shit());
+puts("Yay such my ball mipah");

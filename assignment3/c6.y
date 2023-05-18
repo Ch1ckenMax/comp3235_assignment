@@ -76,6 +76,8 @@ stmt:
         | GETS '(' VARIABLE ')' ';'		 { $$ = opr(GETS, 1, id($3, false)); }
         | VARIABLE '=' expr ';'          { $$ = opr('=', 2, id($1, true), $3);}
         | VARIABLE '[' expr ']' '=' expr ';' { $$ = opr('=', 3, id($1, true), $3, $6);}
+        | '@' VARIABLE '=' expr ';'          { $$ = opr('@', 2, id($2, true), $4);}
+        | '@' VARIABLE '[' expr ']' '=' expr ';' { $$ = opr('@', 3, id($2, true), $4, $7);}
         | ARRAY arr_decl_list ';' { $$ = opr(ARRAY, 1, $2); }
         | FUNC VARIABLE '(' param_list ')' stmt { $$ = opr(FUNC, 3, id($2, true), $4, $6); }
         | RET expr ';'                { $$ = opr(RET, 1, $2);}
@@ -94,11 +96,13 @@ arr_decl_list:
 param_list:
           VARIABLE                  { $$ = id($1, true); }
         | VARIABLE '[' expr ']'     { $$ = opr('[', 2, id($1, true), $3); }
+        | /* NULL */                { $$ = opr(' ', 0); }
         | param_list ',' VARIABLE   { $$ = opr(PARAM_LIST, 2, $1, id($3, true)); }
         | param_list ',' VARIABLE '[' expr ']' { $$ = opr(PARAM_LIST, 2, $1, opr('[', 2, id($3, true), $5)); }
 
 arg_list:
           expr                  { $$ = $1; }
+        | /* NULL */            { $$ = opr(' ', 0); }
         | arg_list ',' expr     { $$ = opr(ARG_LIST, 2, $1, $3); }
 
 stmt_list:
@@ -113,7 +117,7 @@ expr:
         | VARIABLE              { $$ = id($1, false); }
         | VARIABLE '[' expr ']' { $$ = opr('[', 2, id($1, false), $3); }
         | VARIABLE '(' arg_list ')' { $$ = opr('(', 2, id($1, false), $3); }
-        | '@' VARIABLE          { $$ = id($2, false); }
+        | '@' VARIABLE          { $$ = opr('@', 1, id($2, false)); }
         | '@' VARIABLE '[' expr ']' { $$ = opr(']', 2, id($2, false), $4); }
         | '@' VARIABLE '(' arg_list ')' { $$ = opr('(', 2, id($2, false), $4); }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }

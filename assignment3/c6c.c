@@ -29,11 +29,12 @@ int ex(nodeType *p) {
         printf("\tpush\t%s\n", p->conStr.str);
         break;
     case typeId:{
-        int symIndex = indexOfVarName(p->id.name, currentScope);
-        if(symIndex < 0){
-            symIndex = symTableAddEntry(symIndex, p->id.name);
+        /* Variable (i.e. identifier) */
+        int symIndex = indexOfVarName(p->id.name, currentScope); //Finds the index of the identifier name of the variable in the current scope
+        if(symIndex < 0){                                        //The above function returns -1 if the variable is not declared in the symbol table.
+            symIndex = symTableAddEntry(symIndex, p->id.name);   //If variable not yet declared, add the name to the symbol table.
         }
-        int stackIndex = indexOnStack(symIndex, 1, currentScope);
+        int stackIndex = indexOnStack(symIndex, 1, currentScope);//Allocate space in the stack for the variable/find the position of the variable in the stack (relative to the current frame pointer)
         if(!p->id.lvalue){
             if(currentScope == global){
                 printf("\tpush\tsb[%d]\n", stackIndex); 
@@ -200,11 +201,11 @@ int ex(nodeType *p) {
                 //Variables for "backpatching"
                 int std_out = dup(STDOUT_FILENO); //Create a copy of file descriptor of stdout
                 int fds[2]; //For storing file descriptors of a pipe in linux
-                char buf[BUFSIZ];
 
                 nextStackPosLocal = 0;
                 nextSymIndexLocal = 0;
-                numOfParams = 1;
+                numOfParams = 0;
+                hasReturn = false;
                 initializeStackPos(symStackPosLocal, STACK_RESERVE_SIZE);
                 lblFunc = lbl++; //Jump position for this function
 
@@ -219,7 +220,8 @@ int ex(nodeType *p) {
                 //Flush stdout before proceeding. Anything before this point is guaranteed to be flushed to stdout
                 fflush(stdout);
 
-                //Create a pipe. This is a single threaded program but I am still going to use pipe anyway because yay
+                //Create a pipe. This is a single threaded program but I am still going to use pipe anyway
+                //I want to do "backpatching" by redirecting stdout to a pipe, then retrieve the content from pipe later
                 if(pipe(fds) == -1){
                     fprintf(stderr, "Error occured when creating a pipe for backpatching in function declarations.\n");
                 }
@@ -234,6 +236,11 @@ int ex(nodeType *p) {
 
                 //Generate code for function body
                 ex(p->opr.op[2]);
+                if(!hasReturn){
+                    //If there is no return statement in the function body, add one to the function body.
+                    printf("\tpush\t0\n"); //Placeholder
+                    printf("\tRET\n");
+                }
                 printf("L%03d:\n", lblFuncSkip = lbl++);
                 fflush(stdout); //Flush it so the printf stuff is flushed into the pipe stream
                 close(fds[1]);
@@ -242,8 +249,8 @@ int ex(nodeType *p) {
                 dup2(std_out, STDOUT_FILENO);
                 close(std_out);
 
-                read(fds[0], buf, BUFSIZ); //Read from the pipe
-
+                ssize_t n = read(fds[0], buf, BUFSIZ); //Read from the pipe
+                buf[n] = '\0';
 
                 close(fds[0]);
 
@@ -261,6 +268,7 @@ int ex(nodeType *p) {
             case RET: {
                 ex(p->opr.op[0]);
                 printf("\tRET\n");
+                hasReturn = true;
                 break;
             }
             case '(': {
@@ -300,6 +308,33 @@ int ex(nodeType *p) {
                 printf("\tpush\tsb[in]\n"); 
 
                 break;
+            }
+            case '@':{ //Global variable
+                if(p->opr.nops == 1){
+                    int savedScope = currentScope; //Save the current scope
+                    currentScope = global; //As the global variable is needed, change the current scope to global
+                    ex(p->opr.op[0]); //execute the variable
+                    currentScope = savedScope; //restore the current scope
+                }
+                else if(p->opr.nops == 2){
+                    ex(p->opr.op[1]);
+                    int symIndex = indexOfVarName(p->opr.op[0]->id.name, global);
+                    if(symIndex < 0){
+                        symIndex = symTableAddEntry(symIndex, p->opr.op[0]->id.name);
+                    }
+                    int stackIndex = indexOnStack(symIndex, 1, global);
+                    printf("\tpop\tsb[%d]\n", stackIndex); 
+                }else{
+                    ex(p->opr.op[2]);
+                    storeIndexStackPos(p, global); //After executing this function, the register "in" stores the index
+                    printf("\tpop\tsb[in]\n");
+                }
+                
+                break;
+            case ' ':{
+                //Placeholder for empty rule
+                break;
+            }
             }
             case UMINUS:    
                 ex(p->opr.op[0]);

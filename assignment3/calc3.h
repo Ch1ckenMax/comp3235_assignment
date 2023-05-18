@@ -18,7 +18,7 @@ typedef struct {
 /* identifiers */
 typedef struct {
     char* name;                      /* subscript to sym array */
-    bool lvalue;
+    bool lvalue;                     /* states whether the identifier is used as lvalue or not */
 } idNodeType;
 
 /* operators */
@@ -41,16 +41,20 @@ typedef struct nodeTypeTag {
     };
 } nodeType;
 
+/* -- For Global Scope -- */
 extern char* sym[SYM_SIZE];
-extern char* symLocal[SYM_SIZE];
 static int nextSymIndex = 0; //Index of the next element to be filled in the symbol table
-static int nextSymIndexLocal = 0;
-
 extern int symStackPos[STACK_RESERVE_SIZE]; //position of the variable in the stack - sb
-extern int symStackPosLocal[STACK_RESERVE_SIZE]; // relative to fp
 static int nextStackPos = 0;
+
+/* -- For Local Scope -- */
+extern char* symLocal[SYM_SIZE];
+static int nextSymIndexLocal = 0;
+extern int symStackPosLocal[STACK_RESERVE_SIZE]; // relative to fp
 static int nextStackPosLocal = 0;
+char buf[BUFSIZ]; //For "backpatching" using pipe
 
-static int numOfParams = 0;
-
+/* -- Static Variables for "Inherited Attributes" -- */
+static int numOfParams = 0; //For counting the number of parameters
+static bool hasReturn = 0; //For checking if the fucntion body has a return statement
 static scopeEnum currentScope = global;
