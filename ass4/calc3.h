@@ -40,6 +40,7 @@ typedef struct nodeTypeTag {
 static int blockT[8][8] = {0};
 static int blockR[8][8] = {0};
 
+static int varStack[SYM_SIZE];
 extern char* sym[SYM_SIZE];
 static int nextVarIndex = 0; //Index of the next element to be filled in the symbol table
 

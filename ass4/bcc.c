@@ -3,12 +3,9 @@
 #include "calc3.h"
 #include "y.tab.h"
 
-
-static int lbl;
 int indexOfVarName(char* varname);
 
 int ex(nodeType *p) {
-    int lblx, lbly, lbl1, lbl2;
 
     if (!p) return 0;
     switch(p->type) {
@@ -16,36 +13,29 @@ int ex(nodeType *p) {
         return p->con.value; 
         break;
     case typeConChar:
-        printf("\tpush\t'%c'\n", p->con.value); 
-        break;
-    case typeConStr:
-        printf("\tpush\t%s\n", p->conStr.str);
-        break;
+        return p->con.value; 
     case typeId:{
         int index = indexOfVarName(p->id.name);
-        printf("\tpush\tsb[%d]\n", index); 
-        break;
+        return varStack[index];
     }
     case typeOpr:
         switch(p->opr.oper) {
-	case FOR:
-		ex(p->opr.op[0]);
-		printf("L%03d:\n", lblx = lbl++);
-		ex(p->opr.op[1]);
-		printf("\tj0\tL%03d\n", lbly = lbl++);
-		ex(p->opr.op[3]);
-		ex(p->opr.op[2]);
-		printf("\tjmp\tL%03d\n", lblx);
-		printf("L%03d:\n", lbly);
-		break;
-        case WHILE:
-            printf("L%03d:\n", lbl1 = lbl++);
+	case FOR:{
             ex(p->opr.op[0]);
-            printf("\tj0\tL%03d\n", lbl2 = lbl++);
-            ex(p->opr.op[1]);
-            printf("\tjmp\tL%03d\n", lbl1);
-            printf("L%03d:\n", lbl2);
+            bool condition;
+            while(condition = ex(p->opr.op[1])){
+                    ex(p->opr.op[3]);
+                    ex(p->opr.op[2]);   
+            }
             break;
+        }
+        case WHILE:{
+            bool condition;
+            while(condition = ex(p->opr.op[0])){
+                ex(p->opr.op[1]);   
+            }
+            break;
+        }
         case IF:{
             int e1 = ex(p->opr.op[0]);
             if (p->opr.nops > 2) {
@@ -64,52 +54,10 @@ int ex(nodeType *p) {
             }
             break;
         }
-        case GETI:{
-            printf("\tgeti\n");
-            int index = indexOfVarName(p->opr.op[0]->id.name);
-            printf("\tpop\tsb[%d]\n", index); 
-            break;
-        }
-        case GETC:{
-            printf("\tgetc\n");
-            int index = indexOfVarName(p->opr.op[0]->id.name);
-            printf("\tpop\tsb[%d]\n", index); 
-            break;
-        }
-        case GETS:{
-            printf("\tgets\n");
-            int index = indexOfVarName(p->opr.op[0]->id.name);
-            printf("\tpop\tsb[%d]\n", index); 
-            break;
-        }
-        case PUTI:
-            ex(p->opr.op[0]);
-            printf("\tputi\n");
-            break;
-        case PUTC:
-            ex(p->opr.op[0]);
-            printf("\tputc\n");
-            break;
-        case PUTS:
-            ex(p->opr.op[0]);
-            printf("\tputs\n");
-            break;
-        case PUTI_:
-            ex(p->opr.op[0]);
-            printf("\tputi_\n");
-            break;
-        case PUTC_:
-            ex(p->opr.op[0]);
-            printf("\tputc_\n");
-            break;
-        case PUTS_:
-            ex(p->opr.op[0]);
-            printf("\tputs_\n");
-            break;
         case '=':{
-            ex(p->opr.op[1]);
+            int rvalue = ex(p->opr.op[1]);
             int index = indexOfVarName(p->opr.op[0]->id.name);
-            printf("\tpop\tsb[%d]\n", index); 
+            varStack[index] = rvalue;
             break;
         }
         case UMINUS:{
